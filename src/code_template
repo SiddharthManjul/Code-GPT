@@ -1,3 +1,4 @@
+// Imports
 use actix_cors::Cors;
 
 use actix_web::{http::header, web, App, HttpServer, Responder, HttpResponse};
@@ -13,6 +14,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
 
+// Structs
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Task {
     id: u64,
@@ -33,6 +35,7 @@ struct Database {
     users: HashMap<u64, User>
 }
 
+// Database Implementation
 impl Database {
     fn new() -> Self {
         Self { 
@@ -91,6 +94,7 @@ struct AppState {
     db: Mutex<Database>
 }
 
+// Async CRUD Functions
 async fn create_task(app_state: web::Data<AppState>, task: web::Json<Task>) -> impl Responder {
     let mut db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
     db.insert(task.into_inner());
@@ -143,6 +147,7 @@ async fn login(app_state: web::Data<AppState>, user: web::Json<User>) -> impl Re
     }
 }
 
+// Async Main Function(Server)
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let db: Database = match Database::load_from_file() {
